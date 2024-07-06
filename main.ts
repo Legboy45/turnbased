@@ -12,19 +12,30 @@
  * Side Partners:
  */
 /**
+ * Gameplan:
+ * 
+ * Start in a Nightmare and fight ???
+ */
+/**
  * mechanics:
  * 
  * energy
  * 
- *    - more actions = get tired
+ *    - more actions = more tiredness
+ * 
+ *    - tiredness = no actions
  * 
  * solution:
  * 
- *    action "sleep" - less def, no dodging (risky in bad 
+ *    action 
  * 
- *    situations)
+ *         "sleep" - less def, no dodging
  * 
- *    items with +energy like "coffee, energy drink/bar"
+ *         "pinch/slap" take damage, based on tiredness
+ * 
+ *    items with +energy like "coffee, energy drink/bar,air horn"
+ * 
+ *    equipment like ""
  */
 controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
     if (CurrentMenu == "Inventory") {
@@ -431,10 +442,15 @@ scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile33`, function (sprite, 
     tiles.setTileAt(location, assets.tile`myTile34`)
     ActivatedLevers += 1
 })
+scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile42`, function (sprite, location) {
+    tiles.setTileAt(location, assets.tile`myTile13`)
+    blockSettings.writeString("MaxUnlocked?", "Yes")
+    game.showLongText("You've unlocked Max!", DialogLayout.Bottom)
+})
 scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile39`, function (sprite, location) {
     tiles.setTileAt(location, assets.tile`myTile40`)
     Money += 5
-    game.showLongText("+5$", DialogLayout.Top)
+    game.showLongText("You've found 5 Dollars!", DialogLayout.Top)
 })
 function Playercreate () {
     mySprite = sprites.create(img`
@@ -591,23 +607,84 @@ function Menus () {
     miniMenu.createMenuItem(Member2),
     miniMenu.createMenuItem(Member3)
     ])
-    SkillInventory.setButtonEventsEnabled(false)
-    SkillInventory.setFlag(SpriteFlag.RelativeToCamera, true)
-    SkillInventory.setFlag(SpriteFlag.Invisible, true)
-    PartyMenu = miniMenu.createMenuFromArray([
+    MembersInParty = [
     miniMenu.createMenuItem(Member1),
     miniMenu.createMenuItem(Member2),
     miniMenu.createMenuItem(Member3)
-    ])
+    ]
+    SkillInventory.setButtonEventsEnabled(false)
+    SkillInventory.setFlag(SpriteFlag.RelativeToCamera, true)
+    SkillInventory.setFlag(SpriteFlag.Invisible, true)
+    PartyMenu = miniMenu.createMenuFromArray(MembersInParty)
     PartyMenu.setButtonEventsEnabled(false)
     PartyMenu.setFlag(SpriteFlag.Invisible, true)
     PartyMenu.setFlag(SpriteFlag.RelativeToCamera, true)
-    AvaiablePartyMembers = miniMenu.createMenuFromArray([])
+    text_list = [miniMenu.createMenuItem("Josh", img`
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . f f f f . . . . . 
+        . . . . . f f 1 1 1 1 f . . . . 
+        . . . . f 1 1 1 1 1 1 1 f . . . 
+        . . . f 1 1 1 1 1 1 f 1 f . . . 
+        . . . f 1 f 1 1 1 1 1 1 f . . . 
+        . . . f 1 1 1 1 1 1 1 1 1 f . . 
+        . . . f 1 1 1 1 1 f f 1 1 f . . 
+        . . . . f 1 1 f f 1 1 1 1 f . . 
+        . . . . f 1 1 1 1 1 1 1 f . . . 
+        . . . . . f f 1 1 1 f f e f . . 
+        . . . . . . . f f f e e e f . . 
+        . . . . . . f e e e e e e e f . 
+        `)]
+    if (blockSettings.readString("PennyUnlocked?") == "Yes") {
+        text_list.push(miniMenu.createMenuItem("Penny", img`
+            . . . . . . . . . . . . . . . . 
+            . . . . . . f f f f f f . . . . 
+            . . f f f f e e e e e e f f . . 
+            . f e e e e e f f f e e e e f . 
+            f e e e e f f 1 1 1 f e e e f . 
+            f e e f f 1 1 1 1 1 1 f e e f . 
+            f e f 1 1 1 1 1 1 f 1 1 f e e f 
+            f e f 1 f 1 1 1 1 1 1 1 f e e f 
+            f e f 1 1 1 1 1 1 1 1 1 f e e f 
+            f e f 1 1 1 1 1 1 1 f 1 f e f f 
+            f e f 1 1 f 1 1 1 f 1 1 f e f . 
+            f e f 1 1 1 f f f 1 1 f e e f . 
+            f e e f 1 1 1 1 1 1 f f e e f . 
+            f e e e f f f f f f e e e e f . 
+            . f e f . . . . . . f e e f . . 
+            . . f . . . . . . . f f f . . . 
+            `))
+    }
+    if (blockSettings.readString("MaxUnlocked?") == "Yes") {
+        text_list.push(miniMenu.createMenuItem("Max", img`
+            . . . . . . . . . . . . . . . . 
+            . . . . . . f f f . . . . . . . 
+            . . . . . f 2 2 2 f . . . . . . 
+            . . . . . f 2 2 2 f . . . . . . 
+            . . . . f f f f f f f f . . . . 
+            . . f f 8 8 8 8 8 8 8 8 f f . . 
+            . f 8 8 8 8 8 8 8 8 8 8 8 8 f . 
+            f 8 8 8 f f f f f f f f 8 8 8 f 
+            f 8 8 f 1 1 1 1 1 1 1 1 f 8 8 f 
+            f 8 f 1 f 1 1 1 1 1 1 f 1 f 8 f 
+            f 8 f 1 1 1 1 1 1 1 1 1 1 f 8 f 
+            f 8 f 1 1 f f f f f f 1 1 f 8 f 
+            f 8 f 1 1 f f f f f f 1 1 f 8 f 
+            . f f 1 1 f f f f f f 1 1 f f . 
+            . . . f 1 1 f f f f 1 1 f . . . 
+            . . . . f f f f f f f f . . . . 
+            `))
+    }
+    AvaiablePartyMembers = miniMenu.createMenuFromArray(text_list)
     AvaiablePartyMembers.setButtonEventsEnabled(false)
     AvaiablePartyMembers.setFlag(SpriteFlag.Invisible, true)
     AvaiablePartyMembers.setFlag(SpriteFlag.RelativeToCamera, true)
 }
 function HUD () {
+    asdads = textsprite.create("0", 0, 7)
+    asdads.setOutline(1, 15)
     MoneyHUD = textsprite.create("0", 0, 7)
     MoneyHUD.setOutline(1, 15)
     MoneyHUD.setFlag(SpriteFlag.RelativeToCamera, true)
@@ -626,25 +703,18 @@ controller.menu.onEvent(ControllerButtonEvent.Pressed, function () {
         CurrentMenu = "None"
     }
 })
+scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile41`, function (sprite, location) {
+    tiles.setTileAt(location, assets.tile`myTile13`)
+    blockSettings.writeString("PennyUnlocked?", "Yes")
+    game.showLongText("You've unlocked Penny!", DialogLayout.Bottom)
+})
 function Variables () {
     Member1 = "Josh"
-    Member2 = ""
-    Member3 = ""
     CurrentMenu = "None"
     if (blockSettings.exists("money")) {
         Money = blockSettings.readNumber("money")
     } else {
         Money = 0
-    }
-    if (blockSettings.readString("PennyUnlocked?") == "Yes") {
-        PennyUnlocked = true
-    } else {
-        PennyUnlocked = false
-    }
-    if (blockSettings.readString("MaxUnlocked?") == "Yes") {
-        MaxUnlocked = true
-    } else {
-        MaxUnlocked = false
     }
     if (blockSettings.readString("") == "Yes") {
         Partner3Unlocked = true
@@ -657,15 +727,17 @@ function Variables () {
         Partner4Unlocked = false
     }
 }
+let MemberSlot = 0
 let Partner4Unlocked = false
 let Partner3Unlocked = false
-let MaxUnlocked = false
-let PennyUnlocked = false
 let MenuOn = false
 let Which_Turn = ""
 let MoneyHUD: TextSprite = null
+let asdads: TextSprite = null
 let AvaiablePartyMembers: miniMenu.MenuSprite = null
+let text_list: miniMenu.MenuItem[] = []
 let PartyMenu: miniMenu.MenuSprite = null
+let MembersInParty: miniMenu.MenuItem[] = []
 let SkillInventory: miniMenu.MenuSprite = null
 let EquipInventory: Inventory.Inventory = null
 let Member3 = ""
@@ -807,6 +879,7 @@ scene.setBackgroundImage(img`
 tiles.setCurrentTilemap(tilemap`level4`)
 tiles.placeOnRandomTile(mySprite, assets.tile`myTile10`)
 game.onUpdate(function () {
+    asdads.setText("" + CurrentMenu)
     MoneyHUD.setText("" + Money + "$")
     blockSettings.writeNumber("money", Money)
 })
@@ -871,15 +944,51 @@ game.onUpdate(function () {
             CurrentMenu = "Main"
         })
         PartyMenu.onButtonPressed(controller.A, function (selection, selectedIndex) {
-            if (selection == "Josh") {
+            if (selectedIndex == 1) {
+                PartyMenu.setButtonEventsEnabled(false)
+                PartyMenu.setFlag(SpriteFlag.Invisible, true)
+                AvaiablePartyMembers.setButtonEventsEnabled(true)
+                AvaiablePartyMembers.setFlag(SpriteFlag.Invisible, false)
+                MemberSlot = 1
+                CurrentMenu = "AvaiableParty"
+            } else if (selectedIndex == 2) {
+                PartyMenu.setButtonEventsEnabled(false)
+                PartyMenu.setFlag(SpriteFlag.Invisible, true)
+                AvaiablePartyMembers.setButtonEventsEnabled(true)
+                AvaiablePartyMembers.setFlag(SpriteFlag.Invisible, false)
+                MemberSlot = 2
+                CurrentMenu = "AvaiableParty"
+            }
+        })
+    } else if (CurrentMenu == "AvaiableParty") {
+        AvaiablePartyMembers.onButtonPressed(controller.A, function (selection, selectedIndex) {
+            if (selection == "Max") {
+                if (MemberSlot == 1) {
+                    Member2 = "Max"
+                } else if (MemberSlot == 2) {
+                    Member3 = "Max"
+                }
+            } else if (selection == "Penny") {
+                if (MemberSlot == 1) {
+                    Member2 = "Penny"
+                } else if (MemberSlot == 2) {
+                    Member3 = "Penny"
+                }
+            } else if (selection == "Partner3") {
             	
-            } else if (selection == "Josh") {
-            	
-            } else if (selection == "Josh") {
-            	
-            } else if (selection == "Josh") {
+            } else if (selection == "Partner4") {
             	
             }
+            PartyMenu.setButtonEventsEnabled(true)
+            PartyMenu.setFlag(SpriteFlag.Invisible, false)
+            AvaiablePartyMembers.setButtonEventsEnabled(false)
+            AvaiablePartyMembers.setFlag(SpriteFlag.Invisible, true)
+            CurrentMenu = "Party"
+            MembersInParty = [
+            miniMenu.createMenuItem(Member1),
+            miniMenu.createMenuItem(Member2),
+            miniMenu.createMenuItem(Member3)
+            ]
         })
     } else {
         controller.moveSprite(mySprite, 100, 100)
